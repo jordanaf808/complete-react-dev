@@ -4,6 +4,9 @@ import {withRouter} from 'react-router-dom';
 
 import './menu-item.styles.scss';
 
+// we pass Router props: history and match, to allow this component to navigate
+// to the HATS page from where ever we are
+
 
 const MenuItem = ( {title, imageUrl, size, history, linkUrl, match} ) => ( 
   <div className={`${size} menu-item`} onClick={() => history.push(`${match.url}${linkUrl}`)}>
