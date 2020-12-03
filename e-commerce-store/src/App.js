@@ -9,8 +9,8 @@ import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up
 import Header from "./components/header/header.component";
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
 
-// We need to store the State of our user in the App. firebase {auth} needs 
-// to have access to the State so it can pass that information to all of our 
+// We need to store the State of our user in the App. firebase {auth} needs
+// to have access to the State so it can pass that information to all of our
 // components that need it.
 
 // To store state in that App we need to change it to a 'class' component:
@@ -28,10 +28,29 @@ class App extends React.Component {
   unsubscribeFromAuth = null;
   // pass in the current user to the unsubscribe method
   componentDidMount() {
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async(user) => {
-      createUserProfileDocument(user);
-      // this.setState({ currentUser: user });
-      console.log(user);
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
+      if (userAuth) {
+        // userRef: a 'documentRef object' that can perform CRUD operations on our database.
+        // snapshot: an object we get from the referenceObject: userRef
+        // 'snapshot' object allows us to check if it .exists and get
+        // it's .data() method.
+        const userRef = await createUserProfileDocument(userAuth);
+        userRef.onSnapshot((snapShot) => {
+          this.setState({
+            currentUser: {
+              id: snapShot.id,
+              ...snapShot.data(),
+            },
+          // setState() is async so to console.log the results when it finally happens
+          // we pass console.log as the second function in setState() 
+          // }, () => {
+          //   console.log(this.state);
+          // });
+          });
+          console.log(this.state);
+        });
+      }
+      this.setState({currentUser: userAuth});
     });
   }
   // when this lifecycle is called, you will be unsubscribed from auth.
@@ -41,7 +60,7 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Header currentUser={this.state.currentUser}/>
+        <Header currentUser={this.state.currentUser} />
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route path="/shop" component={ShopPage} />
