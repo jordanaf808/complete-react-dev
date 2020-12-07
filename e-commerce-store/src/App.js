@@ -1,6 +1,6 @@
 import React from "react";
-import { Switch, Route } from "react-router-dom";
-import { connect } from 'react-redux';
+import { Switch, Route, Redirect } from "react-router-dom";
+import { connect } from "react-redux";
 
 import "./App.scss";
 
@@ -9,7 +9,7 @@ import ShopPage from "./pages/shop/shop.component";
 import SignInAndSignUpPage from "./pages/sign-in-and-sign-up/sign-in-and-sign-up.component";
 import Header from "./components/header/header.component";
 import { auth, createUserProfileDocument } from "./firebase/firebase.utils";
-import {setCurrentUser} from './redux/user/user.actions';
+import { setCurrentUser } from "./redux/user/user.actions";
 
 // We need to store the State of our user in the App. firebase {auth} needs
 // to have access to the State so it can pass that information to all of our
@@ -26,12 +26,10 @@ class App extends React.Component {
   //     currentUser: null,
   //   };
   // }
-  // must close auth when app closes, so we don't have any memory leaks
-  // init a unsubscribe method set to null by default
   unsubscribeFromAuth = null;
   // pass in the current user to the unsubscribe method
   componentDidMount() {
-    const {setCurrentUser} = this.props;
+    const { setCurrentUser } = this.props;
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       if (userAuth) {
         // userRef: a 'documentRef object' that can perform CRUD operations on our database.
@@ -41,23 +39,18 @@ class App extends React.Component {
         const userRef = await createUserProfileDocument(userAuth);
         userRef.onSnapshot((snapShot) => {
           setCurrentUser({
-          // this.setState({
-          //   currentUser: {
-              id: snapShot.id,
-              ...snapShot.data()
-            });
-          // setState() is async so to console.log the results when it finally happens
-          // we pass console.log as the second function in setState() 
-          // }, () => {
-          //   console.log(this.state);
-          // });
+            // this.setState({
+            //   currentUser: {
+            id: snapShot.id,
+            ...snapShot.data(),
+          });
         });
       }
       // this.setState({currentUser: userAuth});
       setCurrentUser(userAuth);
     });
   }
-  // when this lifecycle is called, you will be unsubscribed from auth.
+
   componentWillUnmount() {
     this.unsubscribeFromAuth();
   }
@@ -68,22 +61,37 @@ class App extends React.Component {
         <Switch>
           <Route exact path="/" component={HomePage} />
           <Route path="/shop" component={ShopPage} />
-          <Route path="/signin" component={SignInAndSignUpPage} />
+          <Route
+            exact
+            path="/signin"
+            render={() =>
+              this.props.currentUser ? (
+                <Redirect to="/" />
+              ) : (
+                <SignInAndSignUpPage />
+              )
+            }
+          />
         </Switch>
       </div>
     );
   }
 }
 
-// dispatch a prop we want to set an action on. We set the prop we want,
+// give us access to this.props.currentUser
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser,
+});
+
+// dispatch an action we want to change a prop on. We set the prop we want,
 // which goes to a func. which gets the 'user' object. then calls dispatch().
 // dispatch tells redux to pass this action object with the 'user' payload
-// to every reducer
-const mapDispatchToProps = dispatch => ({
-  setCurrentUser: user => dispatch(setCurrentUser(user))
+// to the reducers.
+const mapDispatchToProps = (dispatch) => ({
+  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
 });
 
 // our app doesn't need currentUser data, only the header component needs it.
 // so we pass 'null' as first argument.
 // export default App;
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -1,3 +1,6 @@
+
+import {UserActionTypes} from './user.types';
+
 // we need to create an initial state when the app is started for the 
 // first time. Redux doesn't know the state when it first initializes, 
 // so when an action gets fired we need to set an initial state
@@ -16,7 +19,7 @@ const userReducer = (state = INITIAL_STATE, action) => {
   // * each Reducer gets every action passed through it, if it doesn't match just
   // return state by default.
   switch (action.type) {
-    case 'SET_CURRENT_USER':
+    case UserActionTypes.SET_CURRENT_USER:
       return {
         ...state, 
         currentUser: action.payload
