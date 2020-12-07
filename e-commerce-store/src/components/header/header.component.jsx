@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Link } from "react-router-dom";
+import { connect } from 'react-redux'; // connects your component to redux 
 import { auth } from "../../firebase/firebase.utils";
 import { ReactComponent as Logo } from "../../assets/crown.svg";
 
@@ -31,4 +32,11 @@ const Header = ({ currentUser }) => (
   </div>
 );
 
-export default Header;
+// currentUser: root reducer => user reducer => currentUser value
+const  mapStateToProps = state => ({
+  currentUser: state.user.currentUser
+})
+// higher order components are just functions that take components as arguments
+// and return a new 'souped-up' component
+
+export default connect(mapStateToProps)(Header);
