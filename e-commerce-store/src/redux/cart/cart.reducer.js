@@ -1,4 +1,5 @@
 import CartActionTypes from "./cart.types";
+import { addItemToCart } from "./cart.utils";
 
 // add value of cartItems into our initial-state of our reducer
 const INITIAL_STATE = {
@@ -23,7 +24,7 @@ const cartReducer = (state = INITIAL_STATE, action) => {
       return {
         ...state,
         // combine old cart items with new cart-items in this payload.
-        cartItems: [...state.cartItems, action.payload],
+        cartItems: addItemToCart(state.cartItems, action.payload),
       };
     default:
       return state;
