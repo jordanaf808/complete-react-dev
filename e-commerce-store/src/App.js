@@ -19,13 +19,6 @@ import { setCurrentUser } from "./redux/user/user.actions";
 // function App() {
 //   return (
 class App extends React.Component {
-  // We no longer need this with Redux.
-  // constructor() {
-  //   super();
-  //   this.state = {
-  //     currentUser: null,
-  //   };
-  // }
   unsubscribeFromAuth = null;
   // pass in the current user to the unsubscribe method
   componentDidMount() {
@@ -33,9 +26,8 @@ class App extends React.Component {
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
       if (userAuth) {
         // userRef: a 'documentRef object' that can perform CRUD operations on our database.
-        // snapshot: an object we get from the referenceObject: userRef
-        // 'snapshot' object allows us to check if it .exists and get
-        // it's .data() method.
+        // snapshot: an object we get from the referenceObject, userRef.
+        // 'snapshot' object allows us to check if it .exists and get it's .data() method.
         const userRef = await createUserProfileDocument(userAuth);
         userRef.onSnapshot((snapShot) => {
           setCurrentUser({
@@ -59,14 +51,14 @@ class App extends React.Component {
       <div>
         <Header />
         <Switch>
-          <Route exact path="/" component={HomePage} />
-          <Route path="/shop" component={ShopPage} />
+          <Route exact path='/' component={HomePage} />
+          <Route path='/shop' component={ShopPage} />
           <Route
             exact
-            path="/signin"
+            path='/signin'
             render={() =>
               this.props.currentUser ? (
-                <Redirect to="/" />
+                <Redirect to='/' />
               ) : (
                 <SignInAndSignUpPage />
               )
