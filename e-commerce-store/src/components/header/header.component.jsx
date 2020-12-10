@@ -1,14 +1,17 @@
-import React from "react";
+import React from 'react';
 
-import { Link } from "react-router-dom";
-import { connect } from "react-redux"; // connects your component to redux
-import { auth } from "../../firebase/firebase.utils";
-import { ReactComponent as Logo } from "../../assets/crown.svg";
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux'; // connects your component to redux
+import { auth } from '../../firebase/firebase.utils';
+import { createStructuredSelector } from 'reselect';
+import { ReactComponent as Logo } from '../../assets/crown.svg';
 
-import CartIcon from "../cart-icon/cart-icon.component";
-import CartDropdown from "../cart-dropdown/cart-dropdown.component";
+import CartIcon from '../cart-icon/cart-icon.component';
+import CartDropdown from '../cart-dropdown/cart-dropdown.component';
+import { selectCartHidden } from '../../redux/cart/cart.selectors';
+import { selectCurrentUser } from '../../redux/user/user.selector';
 
-import "./header.styles.scss";
+import './header.styles.scss';
 
 const Header = ({ currentUser, hidden }) => (
   <div className='header'>
@@ -36,11 +39,11 @@ const Header = ({ currentUser, hidden }) => (
     {hidden ? null : <CartDropdown />}
   </div>
 );
-// returns state which is the 'root reducer'. navigate to the value desired:
-// root reducer(state)=> user reducer(user) => property(currentUser)
-const mapStateToProps = ({ user: { currentUser }, cart: { hidden } }) => ({
-  currentUser,
-  hidden,
+// 'createStructuredSelector' simplifies sending our state to each selector,
+// by just listing the appropriate selector
+const mapStateToProps = createStructuredSelector({
+  currentUser: selectCurrentUser,
+  hidden: selectCartHidden,
 });
 // 'connect': is a higher order component. they are just functions that take components as arguments
 // and return a new 'souped-up' component.

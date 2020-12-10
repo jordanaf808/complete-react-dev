@@ -1,8 +1,10 @@
 import { createSelector } from 'reselect';
 
-// output selector uses createSelector to build itself
+// there are two types of selectors:
+// output selector: uses input selector and createSelector to build itself
 
-// input selector. function that gets whole state and returns a 'slice' of it
+// input selector: function that gets whole state and returns a 'slice' of it
+// also doesn't use createSelector
 const selectCart = (state) => state.cart;
 
 // first argument takes array of input selectors, second argument is a function that
@@ -13,6 +15,11 @@ export const selectCartItems = createSelector(
   (cart) => cart.cartItems
 );
 
+export const selectCartHidden = createSelector(
+  [selectCart],
+  (cart) => cart.hidden
+);
+
 export const selectCartItemsCount = createSelector(
   [selectCartItems],
   (cartItems) =>
@@ -21,4 +28,12 @@ export const selectCartItemsCount = createSelector(
         accumulatedQuantity + cartItem.quantity,
       0
     )
+);
+
+export const selectCartTotal = createSelector([selectCartItems], (cartItems) =>
+  cartItems.reduce(
+    (accumulatedQuantity, cartItem) =>
+      accumulatedQuantity + cartItem.quantity * cartItem.price,
+    0
+  )
 );
