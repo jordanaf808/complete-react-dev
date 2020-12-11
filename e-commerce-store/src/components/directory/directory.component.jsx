@@ -1,74 +1,27 @@
 // Don't need to import React, {Component} from 'react'; because
 // it already exists in this shorter version
 import React from 'react';
+import { connect } from 'react-redux';
+import { createStructuredSelector } from 'reselect';
+
+import { selectDirectorySections } from '../../redux/directory/directory.selectors';
 
 import MenuItem from '../menu-item/menu-item.component';
 
 import './directory.styles.scss';
 
-// this will need to be a class component because we need to 
-// store the 'State' of the menu-items here.
+// we no longer need this.state anymore, now that we store it in Redux. Now, we no longer need a class based component
+// and can change this to a functional component and pass in 'sections' off our props.
+const Directory = ({ sections }) => (
+  <div className='directory-menu'>
+    {sections.map(({ id, ...otherSectionProps }) => (
+      <MenuItem key={id} {...otherSectionProps} />
+    ))}
+  </div>
+);
 
-class Directory extends React.Component {
-  // always need to get all capabilities >>>
-  constructor() {
-    super();
-    // always set State values
-    this.state = {
-      sections: [
-        {
-          title: 'hats',
-          imageUrl: 'https://i.ibb.co/cvpntL1/hats.png',
-          id: 1,
-          linkUrl: 'hats'
-        },
-        {
-          title: 'jackets',
-          imageUrl: 'https://i.ibb.co/px2tCc3/jackets.png',
-          id: 2,
-          linkUrl: ''
-        },
-        {
-          title: 'sneakers',
-          imageUrl: 'https://i.ibb.co/0jqHpnp/sneakers.png',
-          id: 3,
-          linkUrl: ''
-        },
-        {
-          title: 'womens',
-          imageUrl: 'https://i.ibb.co/GCCdy8t/womens.png',
-          size: 'large',
-          id: 4,
-          linkUrl: ''
-        },
-        {
-          title: 'mens',
-          imageUrl: 'https://i.ibb.co/R70vBrQ/men.png',
-          size: 'large',
-          id: 5,
-          linkUrl: ''
-        }
-      ]
-    }
+const mapStateToProps = createStructuredSelector({
+  sections: selectDirectorySections,
+});
 
-  }
-
-  render() {
-    return (
-      <div className='directory-menu'>
-        {
-          // instead of writing each prop out like this...
-          // this.state.sections.map(({title, imageUrl, id, size}) => (
-          //   <MenuItem key={id} title={title} imageUrl={imageUrl} size={size}/>
-          // ))
-          // if the prop and it's name match, we can spread it like so...
-          this.state.sections.map(({id, ...otherSectionProps}) => (
-            <MenuItem key={id} {...otherSectionProps}/>
-          ))
-        }
-      </div>
-    )
-  }
-}
-
-export default Directory;
+export default connect(mapStateToProps)(Directory);
