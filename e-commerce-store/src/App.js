@@ -12,10 +12,15 @@ import ShopPage from './pages/shop/shop.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import CheckoutPage from './pages/checkout/checkout.component';
 
-import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+import {
+  auth,
+  createUserProfileDocument,
+  addCollectionAndDocuments,
+} from './firebase/firebase.utils';
 
 import { setCurrentUser } from './redux/user/user.actions';
 import { selectCurrentUser } from './redux/user/user.selector';
+import { selectCollectionsForPreview } from './redux/shop/shop.selectors';
 
 // We need to store the State of our user in the App. firebase {auth} needs
 // to have access to the State so it can pass that information to all of our
@@ -26,16 +31,16 @@ import { selectCurrentUser } from './redux/user/user.selector';
 //   return (
 class App extends React.Component {
   unsubscribeFromAuth = null;
-  // pass in the current user to the unsubscribe method
+  // whenever the auth state changes pass in the current userAuth object
+  // we pass in the userAuth object to createUserPro... in firebase.utils...
+  // if user doesnt exist create one, otherwise return the current userRef
+  // set that userRef to the current User in our redux state.
   componentDidMount() {
-    const { setCurrentUser } = this.props;
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async (userAuth) => {
+    const { setCurrentUser, collectionsArray } = this.props;
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
       if (userAuth) {
-        // userRef: a 'documentRef object' that can perform CRUD operations on our database.
-        // snapshot: an object we get from the referenceObject, userRef.
-        // 'snapshot' object allows us to check if it .exists and get it's .data() method.
         const userRef = await createUserProfileDocument(userAuth);
-        userRef.onSnapshot((snapShot) => {
+        userRef.onSnapshot(snapShot => {
           setCurrentUser({
             // this.setState({
             //   currentUser: {
@@ -45,7 +50,14 @@ class App extends React.Component {
         });
       }
       // this.setState({currentUser: userAuth});
+      // since we don't need the id's we wrote in our local database we are going to
+      //  map through them. destructure off the title and items and return a new object
+      //  where title goes to title and items goes to items.
       setCurrentUser(userAuth);
+      addCollectionAndDocuments(
+        'collections',
+        collectionsArray.map(({ title, items }) => ({ title, items }))
+      );
     });
   }
 
@@ -80,14 +92,15 @@ class App extends React.Component {
 // give us access to this.props.currentUser
 const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
+  collectionsArray: selectCollectionsForPreview,
 });
 
 // dispatch an action we want to change a prop on. We set the prop we want,
 // which goes to a func. which gets the 'user' object. then calls dispatch().
 // dispatch tells redux to pass this action object with the 'user' payload
 // to the reducers.
-const mapDispatchToProps = (dispatch) => ({
-  setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+const mapDispatchToProps = dispatch => ({
+  setCurrentUser: user => dispatch(setCurrentUser(user)),
 });
 
 // our app doesn't need currentUser data, only the header component needs it.
