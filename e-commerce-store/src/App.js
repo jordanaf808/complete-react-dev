@@ -45,14 +45,8 @@ class App extends React.Component {
         });
       }
       // this.setState({currentUser: userAuth});
-      // since we don't need the id's we wrote in our local database we are going to
-      //  map through them. destructure off the title and items and return a new object
-      //  where title goes to title and items goes to items.
+
       setCurrentUser(userAuth);
-      addCollectionAndDocuments(
-        'collections',
-        collectionsArray.map(({ title, items }) => ({ title, items }))
-      );
     });
   }
 
