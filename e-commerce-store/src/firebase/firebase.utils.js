@@ -58,19 +58,25 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
   return userRef;
 };
 
-//
+// Utility to add new collections or documents to Firebase.
 export const addCollectionAndDocuments = async (
   collectionKey,
   objectsToAdd
 ) => {
   const collectionRef = firestore.collection(collectionKey);
-
+  // group requests into a 'batch' object
+  // we want to know that all of our requests have been submitted to firebase. If we get one error we want to
+  // stop the whole thing, so our data doesn't become unorganized.
   const batch = firestore.batch();
-  // get a new doc ref and ID for each obj
+  // loop over each objectToAdd. forEach does not return new array.
+  // get a new doc ref and ID for each object added. when .doc() is empty we tell it to create an ID,
+  // alternatively we can pass in obj.title to make the ID match the title.
+  // then set all objects in a batch process with the new IDs and objects
   objectsToAdd.forEach(obj => {
     const newDocRef = collectionRef.doc();
     batch.set(newDocRef, obj);
   });
+  // this will fire our batch request. returns a promise and resolve a null value. we can then chain on a .then and do something after our batch or handle errors
   return await batch.commit();
 };
 

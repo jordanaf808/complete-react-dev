@@ -12,15 +12,10 @@ import ShopPage from './pages/shop/shop.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import CheckoutPage from './pages/checkout/checkout.component';
 
-import {
-  auth,
-  createUserProfileDocument,
-  addCollectionAndDocuments,
-} from './firebase/firebase.utils';
+import { auth, createUserProfileDocument } from './firebase/firebase.utils';
 
 import { setCurrentUser } from './redux/user/user.actions';
 import { selectCurrentUser } from './redux/user/user.selector';
-import { selectCollectionsForPreview } from './redux/shop/shop.selectors';
 
 // We need to store the State of our user in the App. firebase {auth} needs
 // to have access to the State so it can pass that information to all of our
@@ -36,7 +31,7 @@ class App extends React.Component {
   // if user doesnt exist create one, otherwise return the current userRef
   // set that userRef to the current User in our redux state.
   componentDidMount() {
-    const { setCurrentUser, collectionsArray } = this.props;
+    const { setCurrentUser } = this.props;
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
       if (userAuth) {
         const userRef = await createUserProfileDocument(userAuth);
@@ -92,7 +87,6 @@ class App extends React.Component {
 // give us access to this.props.currentUser
 const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
-  collectionsArray: selectCollectionsForPreview,
 });
 
 // dispatch an action we want to change a prop on. We set the prop we want,
