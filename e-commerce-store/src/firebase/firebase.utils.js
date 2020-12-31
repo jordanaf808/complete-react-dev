@@ -80,6 +80,24 @@ export const addCollectionAndDocuments = async (
   return await batch.commit();
 };
 
+// convert our collection data from an array into an object and add our route names
+// map through each doc object and destruct. title and items from doc.data (gives us data from doc)
+// return our new objects collected into one final object with all the data we need.
+// we need to add a routeName: encodeURI = pass in string, returns URL readable string
+export const convertCollectionsSnapshotToMap = collections => {
+  const transformedCollection = collections.docs.map(doc => {
+    const { title, items } = doc.data();
+
+    return {
+      routeName: encodeURI(title.toLowerCase()),
+      id: doc.id,
+      title,
+      items,
+    };
+  });
+  console.log(transformedCollection);
+};
+
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
