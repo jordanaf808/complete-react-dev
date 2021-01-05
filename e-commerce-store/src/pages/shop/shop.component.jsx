@@ -43,11 +43,24 @@ class ShopPage extends React.Component {
   componentDidMount() {
     const { updateCollections } = this.props;
     const collectionRef = firestore.collection('collections'); // fetch collection we named 'collections'
-    this.unsubscribeFromSnapshot = collectionRef.onSnapshot(async snapshot => {
-      const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
-      updateCollections(collectionsMap);
-      this.setState({ loading: false }); // deactivate spinner by setting loading to false.
-    });
+    //  This is an observer/subscription pattern we get from firestore. We are going to change it to a promise based function.
+    //   this.unsubscribeFromSnapshot = collectionRef.onSnapshot(async snapshot => {
+    //     const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
+    //     updateCollections(collectionsMap);
+    //     this.setState({ loading: false }); // deactivate spinner by setting loading to false.
+    //   });
+
+    // .get() fetches the api call to our firestore collection (collectionRef). It returns a promise just like our snapshot object we got before.
+    fetch(
+      'https://firestore.googleapis.com/v1/projects/e-commerce-e56a3/databases/(default)/documents/collections'
+    )
+      .then(response => response.json())
+      .then(collections => console.log(collections));
+    // collectionRef.get().then(snapshot => {
+    //   const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
+    //   updateCollections(collectionsMap);
+    //   this.setState({ loading: false }); // deactivate spinner by setting loading to false.
+    // })
   }
 
   // to use our new wrapped components we need to use the render={} method in our <Route />
