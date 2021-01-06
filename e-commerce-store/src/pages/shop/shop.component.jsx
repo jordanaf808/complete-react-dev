@@ -42,25 +42,25 @@ class ShopPage extends React.Component {
   unsubscribeFromSnapshot = null;
   componentDidMount() {
     const { updateCollections } = this.props;
-    const collectionRef = firestore.collection('collections'); // fetch collection we named 'collections'
-    //  This is an observer/subscription pattern we get from firestore. We are going to change it to a promise based function.
+    const collectionRef = firestore.collection('collections'); // reference to collection we named 'collections'
     //   this.unsubscribeFromSnapshot = collectionRef.onSnapshot(async snapshot => {
     //     const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
     //     updateCollections(collectionsMap);
     //     this.setState({ loading: false }); // deactivate spinner by setting loading to false.
     //   });
-
-    // .get() fetches the api call to our firestore collection (collectionRef). It returns a promise just like our snapshot object we got before.
-    fetch(
-      'https://firestore.googleapis.com/v1/projects/e-commerce-e56a3/databases/(default)/documents/collections'
-    )
-      .then(response => response.json())
-      .then(collections => console.log(collections));
-    // collectionRef.get().then(snapshot => {
-    //   const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
-    //   updateCollections(collectionsMap);
-    //   this.setState({ loading: false }); // deactivate spinner by setting loading to false.
-    // })
+    //  We are using an observer/subscription pattern we get with firestore that gives us a snapshot any time the db is modified. If 'observable' object is unavailable we can change it to a promise based function, instead of .onSnapshot.
+    // .get() firestore function that returns a promise with all document(s) from a collection. It returns a promise with a snapshot object just like we got before. However we do not get a continuous subscription like we do with our observer pattern above, only when component mounts.
+    collectionRef.get().then(snapshot => {
+      const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
+      updateCollections(collectionsMap);
+      this.setState({ loading: false }); // deactivate spinner by setting loading to false.
+    });
+    // Using a regular Fetch API call instead of our previous methods. However the data returned is not in the right pattern
+    // fetch(
+    //   'https://firestore.googleapis.com/v1/projects/e-commerce-e56a3/databases/(default)/documents/collections'
+    // )
+    //   .then(response => response.json())
+    //   .then(collections => console.log(collections));
   }
 
   // to use our new wrapped components we need to use the render={} method in our <Route />
