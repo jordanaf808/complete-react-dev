@@ -104,7 +104,7 @@ class ShopPage extends React.Component {
       </div>
     );
   }
-}
+} // TEST CHANGE
 
 // When we refresh a shop collection page, the app will break because when our collection component is loading it expects our collection data to be loaded already. However because React renders our components before calling the 'ComponentDidMount' lifecycle the collection has not been returned yet. Our isLoading value is initially set to false, which in turn renders a missing collection object.
 //  To remedy: instead of checking whether collection is fetching, we need to check whether our collection has loaded, by making another selector which checks whether our collection is !!falsey: e.g.null or not.
