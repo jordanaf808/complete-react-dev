@@ -1,27 +1,21 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { createStructuredSelector } from 'reselect';
+// import { createStructuredSelector } from 'reselect'; * Moved to collection containers
 
 // import {
 //   firestore,
 //   convertCollectionsSnapshotToMap,
 // } from '../../firebase/firebase.utils';
 
-import { fetchCollectionsStartAsync } from '../../redux/shop/shop.actions';
-// selector for isLoading info
-import {
-  selectIsCollectionFetching,
-  selectIsCollectionsLoaded,
-} from '../../redux/shop/shop.selectors';
-
-import CollectionsOverview from '../../components/collections-overview/collections-overview.component';
-import CollectionPage from '../collection/collection.component';
-import WithSpinner from '../../components/with-spinner/with-spinner.component';
+import CollectionsOverviewContainer from '../../components/collections-overview/collections-overview.container';
+import CollectionPageContainer from '../collection/collection.container';
+import { fetchCollectionsStart } from '../../redux/shop/shop.actions';
+// import WithSpinner from '../../components/with-spinner/with-spinner.component'; * Moved to Collection Containers
 
 // Wrap the components that will be loading in the WithSpinner function and set that to a new variable here:
-const CollectionsOverviewWithSpinner = WithSpinner(CollectionsOverview);
-const CollectionPageWithSpinner = WithSpinner(CollectionPage);
+// const CollectionsOverviewWithSpinner = WithSpinner(CollectionsOverview); // deleted for our CollectionsOverview container.
+// const CollectionPageWithSpinner = WithSpinner(CollectionPage); deleted for Collection Containers
 
 // Our 'shop' page is nested inside of a route, Route automatically passes in 'match' 'location' and 'history'
 // 'match' helps us to dynamically display the specific ShopPage in whatever route we put it.
@@ -47,8 +41,8 @@ class ShopPage extends React.Component {
   // };
   // unsubscribeFromSnapshot = null;
   componentDidMount() {
-    const { fetchCollectionsStartAsync } = this.props;
-    fetchCollectionsStartAsync(); // Async Thunk method to kick off multiple actions. To help reducer with async state props and getting collections from Firebase.
+    const { fetchCollectionsStart } = this.props;
+    fetchCollectionsStart();
   }
   //  *** removed for Thunk stuff ***
   //   const { updateCollections } = this.props;
@@ -73,11 +67,12 @@ class ShopPage extends React.Component {
   //   //   .then(collections => console.log(collections));
   // }
 
-  // // to use our new wrapped components we need to use the render={} method in our <Route />
+  // // to use our new wrapped components we need to use the "render={props ..." method in our <Route />
   // // we also need to send the match object data (e.g. history, location) that we use inside of our <CollectionPage/> component
   // // and make sure we pass it through our new spinner wrappers as 'props'
   render() {
-    const { match, isCollectionFetching, areCollectionsLoaded } = this.props;
+    console.log(this);
+    const { match } = this.props;
     // const { loading } = this.state; no longer need because Thunk. instead of fetching isLoading from the state,
     // we can now replace isLoading with our async Thunk: isCollectionFetching passed from our state to our props
     return (
@@ -85,21 +80,24 @@ class ShopPage extends React.Component {
         <Route
           exact
           path={`${match.path}`}
-          render={props => (
-            <CollectionsOverviewWithSpinner
-              isLoading={isCollectionFetching}
-              {...props}
-            />
-          )}
+          component={CollectionsOverviewContainer}
+          // deleted for container
+          // render={props => (
+          //   <CollectionsOverviewWithSpinner
+          //     isLoading={isCollectionFetching}
+          //     {...props}
+          //   />
+          // )}
         />
         <Route
           path={`${match.path}/:collectionId`}
-          render={props => (
-            <CollectionPageWithSpinner
-              isLoading={!areCollectionsLoaded}
-              {...props}
-            />
-          )}
+          component={CollectionPageContainer}
+          // render={props => (
+          //   <CollectionPageWithSpinner
+          //     isLoading={!areCollectionsLoaded}
+          //     {...props}
+          //   />
+          // )}
         />
       </div>
     );
@@ -110,17 +108,16 @@ class ShopPage extends React.Component {
 //  To remedy: instead of checking whether collection is fetching, we need to check whether our collection has loaded, by making another selector which checks whether our collection is !!falsey: e.g.null or not.
 // Now if 'isLoading' is true it will render the spinner, if false it will render the wrapped component. If our collection Has loaded our new areCollectionsLoaded selector returns true, it will trigger our loading spinner instead of loading the collection page, so we must switch the return value with '!'
 
-const mapStateToProps = createStructuredSelector({
-  isCollectionFetching: selectIsCollectionFetching,
-  areCollectionsLoaded: selectIsCollectionsLoaded,
-});
+// const mapStateToProps = createStructuredSelector({
+//   areCollectionsLoaded: selectIsCollectionsLoaded,
+// }); * Moved to Collection Containers
 
 // const mapDispatchToProps = dispatch => ({
 //   updateCollections: collectionsMap =>
 //     dispatch(updateCollections(collectionsMap)),
 // });
 const mapDispatchToProps = dispatch => ({
-  fetchCollectionsStartAsync: () => dispatch(fetchCollectionsStartAsync()),
+  fetchCollectionsStart: () => dispatch(fetchCollectionsStart()),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ShopPage);
+export default connect(null, mapDispatchToProps)(ShopPage);

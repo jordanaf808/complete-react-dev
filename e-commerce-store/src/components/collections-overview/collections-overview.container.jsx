@@ -1,10 +1,8 @@
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
+import { compose } from 'redux';
 
-import {
-  selectIsCollectionFetching,
-  selectIsCollectionsLoaded,
-} from '../../redux/shop/shop.selectors';
+import { selectIsCollectionFetching } from '../../redux/shop/shop.selectors';
 
 import WithSpinner from '../with-spinner/with-spinner.component';
 import CollectionsOverview from './collections-overview.component';
@@ -12,3 +10,13 @@ import CollectionsOverview from './collections-overview.component';
 const mapStateToProps = createStructuredSelector({
   isLoading: selectIsCollectionFetching,
 });
+
+// Same thing as below except with { compose } which 'curries' our functions together, left to right.
+// const CollectionsOverviewContainer = connect(mapStateToProps)(WithSpinner(CollectionsOverview));
+
+const CollectionsOverviewContainer = compose(
+  connect(mapStateToProps),
+  WithSpinner
+)(CollectionsOverview);
+
+export default CollectionsOverviewContainer;
