@@ -147,3 +147,21 @@ We no longer need a .then on our fetchCollections logic because 'yield' returns 
 Instead of using our regular function to map through the snapshot response we use call.
 
 'Call' - an 'effect' inside our generator that invokes functions ( 1st argument ), and subsequent parameters ( other arguments ) to pass into said function, then allows Saga to yield; control the call and cancel it if necessary (e.g. takes too long) and test it.
+
+- Remember To make a new Branch for Section 21 \*
+
+## Lecture 196
+
+put - fires an action to the reducer from a saga
+
+take('ACTION') - waits for the specific 'ACTION' and, if needed, the payload. Only runs once! then it is completed.
+
+takeEvery('ACTION') - spawns a new Saga every time the specific 'ACTION' is passed into it.
+
+takeLatest('ACTION') - only takes the latest action passed into it. If an action is currently working, this will cancel that action and start a new one.
+
+'all' - takes an array of Sagas. instead of synchronously executing 3x: `yield fetchStart();` 'all' allows us to run those 3 sagas asap, asynchronously, like this:
+yield all([
+call(...)
+])
+We can call any number of sagas inside of this array and execute them on separate task threads.
