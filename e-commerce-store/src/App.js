@@ -12,42 +12,36 @@ import ShopPage from './pages/shop/shop.component';
 import SignInAndSignUpPage from './pages/sign-in-and-sign-up/sign-in-and-sign-up.component';
 import CheckoutPage from './pages/checkout/checkout.component';
 
-import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+// import { auth, createUserProfileDocument } from './firebase/firebase.utils'; Removed for User Saga
 
-import { setCurrentUser } from './redux/user/user.actions';
+// import { setCurrentUser } from './redux/user/user.actions'; Removed for User Saga
 import { selectCurrentUser } from './redux/user/user.selector';
+import { checkUserSession } from './redux/user/user.actions';
 
-// We need to store the State of our user in the App. firebase {auth} needs
-// to have access to the State so it can pass that information to all of our
-// components that need it.
-
-// To store state in that App we need to change it to a 'class' component:
-// function App() {
-//   return (
 class App extends React.Component {
   unsubscribeFromAuth = null;
-  // whenever the auth state changes pass in the current userAuth object
-  // we pass in the userAuth object to createUserPro... in firebase.utils...
-  // if user doesnt exist create one, otherwise return the current userRef
-  // set that userRef to the current User in our redux state.
-  componentDidMount() {
-    const { setCurrentUser } = this.props;
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
-      if (userAuth) {
-        const userRef = await createUserProfileDocument(userAuth);
-        userRef.onSnapshot(snapShot => {
-          setCurrentUser({
-            // this.setState({
-            //   currentUser: {
-            id: snapShot.id,
-            ...snapShot.data(),
-          });
-        });
-      }
-      // this.setState({currentUser: userAuth});
 
-      setCurrentUser(userAuth);
-    });
+  componentDidMount() {
+    const { checkUserSession } = this.props;
+    checkUserSession();
+    // *** Removed for User Saga
+    // const { setCurrentUser } = this.props;
+    // Removed for new Promise-based Auth method.
+    // this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+    //   if (userAuth) {
+    //     const userRef = await createUserProfileDocument(userAuth);
+    //     userRef.onSnapshot(snapShot => {
+    //       setCurrentUser({
+    //         // this.setState({
+    //         //   currentUser: {
+    //         id: snapShot.id,
+    //         ...snapShot.data(),
+    //       });
+    //     });
+    //   }
+    //   // this.setState({currentUser: userAuth});
+    //   setCurrentUser(userAuth);
+    // });
   }
 
   componentWillUnmount() {
@@ -83,15 +77,17 @@ const mapStateToProps = createStructuredSelector({
   currentUser: selectCurrentUser,
 });
 
+const mapDispatchToProps = dispatch => ({
+  checkUserSession: () => dispatch(checkUserSession()),
+});
+
 // dispatch an action we want to change a prop on. We set the prop we want,
 // which goes to a func. which gets the 'user' object. then calls dispatch().
 // dispatch tells redux to pass this action object with the 'user' payload
 // to the reducers.
-const mapDispatchToProps = dispatch => ({
-  setCurrentUser: user => dispatch(setCurrentUser(user)),
-});
+// *** Removed for User Saga
+// const mapDispatchToProps = dispatch => ({
+//   setCurrentUser: user => dispatch(setCurrentUser(user)),
+// });
 
-// our app doesn't need currentUser data, only the header component needs it.
-// so we pass 'null' as first argument.
-// export default App;
 export default connect(mapStateToProps, mapDispatchToProps)(App);

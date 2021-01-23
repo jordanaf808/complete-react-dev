@@ -1,6 +1,6 @@
 //  import 'Effects' from sagas to perform actions (e.g. create or listen)
 //  'takeEvery' - Listens for every action of a specific type. It allows us to perform an asynchronous request without 'blocking' our app from running js code. we can perform other actions or Sagas meanwhile. We yield control of this action to the middleware. If we receive another takeEvery action type, the middleware can determine whether to cancel the previous action/other actions
-import { call, takeEvery, put } from 'redux-saga/effects';
+import { call, takeEvery, put, all } from 'redux-saga/effects';
 
 import {
   firestore,
@@ -17,7 +17,7 @@ import ShopActionTypes from './shop.types';
 // All generator functions* have to 'yield' something!
 // like async/await we can put our logic in a try/catch block to catch any errors.
 export function* fetchCollectionsAsync() {
-  yield console.log('Hello World');
+  yield console.log('fetchCollectionsAsync');
   try {
     const collectionRef = firestore.collection('collections');
     // dispatch(fetchCollectionsStart()); not dispatching from Saga, we listen for it.
@@ -26,7 +26,7 @@ export function* fetchCollectionsAsync() {
       convertCollectionsSnapshotToMap,
       snapshot
     );
-    yield put(fetchCollectionsSuccess(collectionsMap)); // sagas don't dispatch actions they use 'put()' we have to yield them.
+    yield put(fetchCollectionsSuccess(collectionsMap)); // sagas don't 'dispatch' actions they use 'put()' we have to yield them as well.
   } catch (error) {
     yield put(fetchCollectionsFailure(error.message));
   }
@@ -48,4 +48,8 @@ export function* fetchCollectionsStart() {
     ShopActionTypes.FETCH_COLLECTIONS_START,
     fetchCollectionsAsync
   );
+}
+
+export function* shopSagas() {
+  yield all([call(fetchCollectionsStart)]);
 }

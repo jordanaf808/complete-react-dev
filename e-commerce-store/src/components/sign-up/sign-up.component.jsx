@@ -1,11 +1,13 @@
-import React from "react";
+import React from 'react';
 
-import FormInput from "../form-input/form-input.component";
-import CustomButton from "../custom-button/custom-button.component";
+import { connect } from 'react-redux';
 
-import { auth, createUserProfileDocument } from "../../firebase/firebase.utils";
+import FormInput from '../form-input/form-input.component';
+import CustomButton from '../custom-button/custom-button.component';
 
-import "./sign-up.styles.scss";
+import { signUpStart } from '../../redux/user/user.actions';
+
+import './sign-up.styles.scss';
 
 // we need to store what the user types in the Form component in the state.
 
@@ -14,91 +16,100 @@ class SignUp extends React.Component {
     super();
 
     this.state = {
-      displayName: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
+      displayName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
     };
   }
 
+  // moved signUp logic to a Saga. we don't need setState to clear signUp form, since now we signIn the user in our saga after they signUp. we don't need the try/catch code.
+
   handleSubmit = async event => {
     event.preventDefault();
+    const { signUpStart } = this.props;
     const { displayName, email, password, confirmPassword } = this.state;
-    if(password !== confirmPassword){
+    if (password !== confirmPassword) {
       alert("passwords don't match");
       return;
     }
-    try {
-      // 'auth.create' returns a userAuth object which we access by destructuring.
-      // create user with email and password from this.state above.
-      const {user} = await auth.createUserWithEmailAndPassword(
-        email, password
-      );
-      // create a user document with the above object and display name as an object.
-      await createUserProfileDocument(
-        user, {displayName}
-      );
-      // clear form after sending:
-      this.setState({
-        displayName: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
-    } catch(error) {
-      console.error(error);
-    }
+
+    signUpStart({ displayName, email, password });
+
+    //   try {
+    //     // 'auth.create...' is a Firebase method that returns a 'userAuth' object which we access by destructuring.
+    //     // create user with email and password from this.state above.
+    //     const { user } = await auth.createUserWithEmailAndPassword(
+    //       email,
+    //       password
+    //     );
+    //     // We successfully created a new user document with the above function and received a 'userAuth' object from Firebase in return. We send that to this function and the displayName as an object as the second argument, so we can save this new user in our database.
+    //     await createUserProfileDocument(user, { displayName });
+    //     // clear form after sending:
+    //     this.setState({
+    //       displayName: '',
+    //       email: '',
+    //       password: '',
+    //       confirmPassword: '',
+    //     });
+    //   } catch (error) {
+    //     console.error(error);
+    //   }
   };
 
   handleChange = event => {
-    const {name, value} = event.target;
-    this.setState({[name]: value});
-  }
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  };
 
   render() {
     const { displayName, email, password, confirmPassword } = this.state;
     return (
-      <div className="sign-up">
+      <div className='sign-up'>
         <h2 className='title'>I do not have an account</h2>
         <span>Sign up with your email and password</span>
-        <form className="sign-up-form" onSubmit={this.handleSubmit}>
+        <form className='sign-up-form' onSubmit={this.handleSubmit}>
           <FormInput
-            type="text"
-            name="displayName"
+            type='text'
+            name='displayName'
             value={displayName}
             onChange={this.handleChange}
-            label="Display Name"
+            label='Display Name'
             required
           />
           <FormInput
-            type="email"
-            name="email"
+            type='email'
+            name='email'
             value={email}
             onChange={this.handleChange}
-            label="E-Mail"
+            label='E-Mail'
             required
           />
           <FormInput
-            type="password"
-            name="password"
+            type='password'
+            name='password'
             value={password}
             onChange={this.handleChange}
-            label="Password"
+            label='Password'
             required
           />
           <FormInput
-            type="password"
-            name="confirmPassword"
+            type='password'
+            name='confirmPassword'
             value={confirmPassword}
             onChange={this.handleChange}
-            label="Confirm Password"
+            label='Confirm Password'
             required
           />
-          <CustomButton type="submit">SIGN UP</CustomButton>
+          <CustomButton type='submit'>SIGN UP</CustomButton>
         </form>
       </div>
     );
   }
 }
 
-export default SignUp;
+const mapDispatchToProps = dispatch => ({
+  signUpStart: userCredentials => dispatch(signUpStart(userCredentials)),
+});
+
+export default connect(null, mapDispatchToProps)(SignUp);

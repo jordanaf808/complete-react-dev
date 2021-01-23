@@ -30,17 +30,25 @@ const config = {
 
 firebase.initializeApp(config);
 
+// Note from when we got the snapshot in our app.js component did mount...
+// We need to store the State of our user in the App. firebase {auth} needs
+// to have access to the State so it can pass that information to all of our
+// components that need it.
+// whenever the auth state changes pass in the current userAuth object
+// we pass in the userAuth object to createUserPro... in firebase.utils...
+// if user doesnt exist create one, otherwise return the current userRef
+// set that userRef to the current User in our redux state.
+
 // Check if userAuth contains anything, then query the database for that user document
 // The snapshot will tell us if that document .exists. if not create new doc with userRef.set()
 
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if (!userAuth) return;
-  //  document reference to this location using uid created by firestore.
+  // set the document reference to this location using uid created by firestore.
   const userRef = firestore.doc(`users/${userAuth.uid}`);
-  // get the snapshot object at userRef's document reference.
+  // get the snapshot object using the userRef's document reference.
   const snapShot = await userRef.get();
-  // FireStore returns a snapshot object regardless if it exists or not. We must check...
-  // if it doesn't exist we create one with our '.set()'
+  // FireStore returns a snapshot object regardless if it exists in our db or not. We must check if it exists with .exists. if it doesn't, we create one with our '.set()'
   if (!snapShot.exists) {
     const { displayName, email } = userAuth;
     const createdAt = new Date();
@@ -106,11 +114,21 @@ export const convertCollectionsSnapshotToMap = collections => {
   }, {});
 };
 
+//  we want to return our check current user data in a 'promise' based method, since we moved this logic into a saga from an observer pattern in our app.js
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged(userAuth => {
+      unsubscribe();
+      resolve(userAuth);
+    }, reject);
+  });
+};
+
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
-const provider = new firebase.auth.GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const googleProvider = new firebase.auth.GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+export const signInWithGoogle = () => auth.signInWithPopup(googleProvider);
 
 export default firebase;

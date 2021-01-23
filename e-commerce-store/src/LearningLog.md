@@ -165,3 +165,37 @@ yield all([
 call(...)
 ])
 We can call any number of sagas inside of this array and execute them on separate task threads.
+
+## Lecture 199
+
+We want to switch our Sign-In/Auth process from an Observer pattern to a more Promise oriented method of asynchronously fetching/updating that data accordingly. Because promises are becoming more prevalent.
+
+We have the Google sign-in method and the plain email/password sign in. So we need 2 seperate sets of Start, Complete, and Failure Action Types.
+
+We change our User Reducer to accept new cases for Google and Email signin action types and return the state with the current user and payload and error status (null or error payload)
+
+Create new User Sagas: listen for googleSignInStart which triggers signInWithGoogle, our actual sign in api call from the saga. signInWithGoogle will return a userRef
+OnGoogleSignInStart(): takeLatest GOOGLE_SIGN_IN_START, signInWithGoogle <--- trigger
+signInWithGoogle(): try/catch yield auth.signInWithPopup
+
+We trigger this saga with the Sign In component. We 'connect' the sign in component to redux and mapDispatchToProps to bring in the googleSignInStart trigger. When that button is pressed, it triggers the google popup to sign in.
+
+When we sign in the auth.signInWithPopup returns us the 'user' object, the same as the 'userAuth' object we were using before in the observer pattern. We use that to create a new user and/or get the userRef object which allows us to get the snapshot and return the user data and trigger the googleSignInSuccess or Failure.
+
+## Lecture 200
+
+7:30 - since we get the user auth and snapshot object the same way between google and email sign in we can consolidate our 'success' and 'failure' action types.
+
+10:30 consolidate duplicate snapshot logic into new generator function\*.
+
+## Lecture 202
+
+recreate persistance for our user auth. in our user saga
+
+there is no promise based way to get snapshot to check whether our user exists or not. we need to make a new firebase.util that will use the existing checking onSnapshotAuth method but we will unsubscribe right after we get the value (?)
+
+## Lecture 205
+
+Clear Cart on SignOut
+
+We could listen for sign out in our cart-item reducer, but this clear items in cart feature could be useful in its own reusable function. We can put it into a Saga and trigger it with a sign out success action. Now that it's in its own saga we can dispatch multiple actions or functions based on sign out success or we can reuse our clearCart action somewhere else.
