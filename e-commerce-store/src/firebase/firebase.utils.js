@@ -104,7 +104,7 @@ export const convertCollectionsSnapshotToMap = collections => {
     };
   });
   // now we need to change this to an object that our reducer can use.
-  // our initial value will be an empty object. the function will get the accumulator and each items collection data.
+  // our initial value will be an empty object. the function will take in the accumulator and each items collection data.
 
   // for each collection in our collections (e.g. Hats) we are going to pass it into a new object with the lower case title, 'hats' as the key and hat's collection data as it's value.
   // it will then return the accumulator value and get the next item in the array and process it.

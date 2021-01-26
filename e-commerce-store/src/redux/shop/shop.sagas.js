@@ -14,7 +14,7 @@ import {
 
 import ShopActionTypes from './shop.types';
 
-// All generator functions* have to 'yield' something!
+// All generator functions* have to 'yield' something, similar to 'await'
 // like async/await we can put our logic in a try/catch block to catch any errors.
 export function* fetchCollectionsAsync() {
   yield console.log('fetchCollectionsAsync');
@@ -41,8 +41,8 @@ export function* fetchCollectionsAsync() {
 }
 
 // Our first Saga:
-// This Saga will 'yield' when a specific action type comes in (1st argument)
-// The 2nd argument is another generator function* that will run in response to the action type
+// This Saga will 'yield' until a specific action type comes in (1st argument)
+// The 2nd argument is another generator function* that will run in response to that specific action type
 export function* fetchCollectionsStart() {
   yield takeEvery(
     ShopActionTypes.FETCH_COLLECTIONS_START,
