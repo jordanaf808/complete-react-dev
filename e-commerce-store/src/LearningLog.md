@@ -199,3 +199,87 @@ there is no promise based way to get snapshot to check whether our user exists o
 Clear Cart on SignOut
 
 We could listen for sign out in our cart-item reducer, but this clear items in cart feature could be useful in its own reusable function. We can put it into a Saga and trigger it with a sign out success action. Now that it's in its own saga we can dispatch multiple actions or functions based on sign out success or we can reuse our clearCart action somewhere else.
+
+---
+
+# Hooks
+
+---
+
+## Lecture 207
+
+Originally if you wanted to leverage _internal_ state in your component you had to use a _class_ component. Then came **Hooks**. Hooks allow functional components access to the state like a class component. Hooks were added in React 16.8
+
+**UseState** - gives functional components access to the state. useState returns an array with 2 values. the value set to a variable, and a function to change that value. e.g. [valueName, setValue] = useState('initialValue').
+Can't useState for component lifecycle methods.
+
+_reminder_ Array Destructuring:
+
+    const arr = [1,2,3]
+    const [a,b,c] = arr
+    // a = 1, b = 2, c = 3
+
+---
+
+### useState example:
+
+    const UseStateExample = () => {
+        const [name, setName] = useState('initialValue');
+        const [addr, setAddr] = useState('Amsterdam');
+
+        return (
+            <Card>
+                <h1>{ name }</h1> // 'initialValue'
+                <h1>{ addr }</h1> // 'Amsterdam'
+                <button onClick={() => setName('Jordan')}>Set Name To Jordan</button>
+                <button onClick={() => setAddr('Hawaii')}>Set Address To Hawaii</button>
+            </Card>
+        );
+    };
+    // returns:
+    // <h1>Jordan</h1>
+    // <h1>Hawaii</h1>
+
+**useEffect** - Allows us to fire side-effects inside functional components. it doesn't get any value, instead, it gets a function that gets called whenever the component changes or rerenders. e.g. when a setState function is triggered by a button. It mimics componentDidMount or any _update_ lifecycle methods.
+If you don't want it to fire on every single update, pass in an array as a secondary parameter. The useEffect will only be triggered when the props passed in the array are changed (like componentDidMount).
+
+    useEffect(() => {
+        console.log('hello')
+    }, [searchQuery])
+
+_note_ you can't pass an async function directly in the useEffect, (async returns a thunk(?) object an useEffect requires you to return a regular function. Instead that function can return an async function like so...
+
+    useEffect(() => {
+    const fetchFunc = async () => {
+        const response = await fetch(`https://jsonplaceholder.typicode.com/users?username=${searchQuery}`)
+        const resJson = await response.json()
+        setUser(resJson[0]) // <-- **this** triggers an infinite loop, because useEffect is called every time state changes
+    }
+    fetchFunc();
+    },)
+
+One of the reasons we have an array as a second parameter is to prevent infinte loops like this from happening. We only want this useEffect to run when the value of the props in it's array change.
+
+We can mimic a componentDidMount lifecycle by passing in an empty array. This way the effect only fires once.
+
+    useEffect(() => {
+        const fetchFunc = async () => {
+            const response = await fetch(`https://jsonplaceholder.typicode.com/users?username=${searchQuery}`)
+            const resJson = await response.json()
+            setUser(resJson[0])
+        };
+    fetchFunc();
+    }, [])
+
+If we wanted to conditionally call useEffect if(!searchquery), we cannot do it outside of useEffect, we must do it inside.
+
+    useEffect(() => {
+        if(searchQuery.length > 0) {
+            const fetchFunc = async () => {
+                const response = await fetch(`https://jsonplaceholder.typicode.com/users?username=${searchQuery}`)
+                const resJson = await response.json()
+                setUser(resJson[0])
+            };
+        };
+    fetchFunc();
+    }, [searchQuery])
