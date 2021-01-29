@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { createStructuredSelector } from 'reselect';
@@ -18,59 +18,45 @@ import CheckoutPage from './pages/checkout/checkout.component';
 import { selectCurrentUser } from './redux/user/user.selector';
 import { checkUserSession } from './redux/user/user.actions';
 
-class App extends React.Component {
-  unsubscribeFromAuth = null;
+// convert our App to a function component with hooks.
+// destructure checkUserSession
 
-  componentDidMount() {
-    const { checkUserSession } = this.props;
+// class App extends React.Component {
+const App = ({ checkUserSession, currentUser }) => {
+  // unsubscribeFromAuth = null; from way earlier, i think. don't think i need this
+  // componentDidMount() {
+  // const { checkUserSession } = this.props;
+  //   checkUserSession();
+  // }
+
+  //  To activate our checkUserSession only on mount (not every time currentUser updates), we pass in an empty array to simulate the componentDidMount lifecycle. BUT this could cause errors, causing this component or it's parent to rerender too much.
+  useEffect(() => {
     checkUserSession();
-    // *** Removed for User Saga
-    // const { setCurrentUser } = this.props;
-    // Removed for new Promise-based Auth method.
-    // this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
-    //   if (userAuth) {
-    //     const userRef = await createUserProfileDocument(userAuth);
-    //     userRef.onSnapshot(snapShot => {
-    //       setCurrentUser({
-    //         // this.setState({
-    //         //   currentUser: {
-    //         id: snapShot.id,
-    //         ...snapShot.data(),
-    //       });
-    //     });
-    //   }
-    //   // this.setState({currentUser: userAuth});
-    //   setCurrentUser(userAuth);
-    // });
-  }
+  }, [checkUserSession]);
 
-  componentWillUnmount() {
-    this.unsubscribeFromAuth();
-  }
-  render() {
-    return (
-      <div>
-        <Header />
-        <Switch>
-          <Route exact path='/' component={HomePage} />
-          <Route path='/shop' component={ShopPage} />
-          <Route exact path='/checkout' component={CheckoutPage} />
-          <Route
-            exact
-            path='/signin'
-            render={() =>
-              this.props.currentUser ? (
-                <Redirect to='/' />
-              ) : (
-                <SignInAndSignUpPage />
-              )
-            }
-          />
-        </Switch>
-      </div>
-    );
-  }
-}
+  // componentWillUnmount() { from before sagas i believe.
+  //   this.unsubscribeFromAuth();
+  // }
+
+  return (
+    <div>
+      <Header />
+      <Switch>
+        <Route exact path='/' component={HomePage} />
+        <Route path='/shop' component={ShopPage} />
+        <Route exact path='/checkout' component={CheckoutPage} />
+        <Route
+          exact
+          path='/signin'
+          render={() =>
+            // this.props.currentUser ? (
+            currentUser ? <Redirect to='/' /> : <SignInAndSignUpPage />
+          }
+        />
+      </Switch>
+    </div>
+  );
+};
 
 // give us access to this.props.currentUser
 const mapStateToProps = createStructuredSelector({

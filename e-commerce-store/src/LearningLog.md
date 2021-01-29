@@ -271,7 +271,7 @@ We can mimic a componentDidMount lifecycle by passing in an empty array. This wa
     fetchFunc();
     }, [])
 
-If we wanted to conditionally call useEffect if(!searchquery), we cannot do it outside of useEffect, we must do it inside.
+If we wanted to conditionally call a useEffect, e.g. if(!searchquery), we cannot do it outside of the useEffect(), we must do it inside the function.
 
     useEffect(() => {
         if(searchQuery.length > 0) {
@@ -283,3 +283,39 @@ If we wanted to conditionally call useEffect if(!searchquery), we cannot do it o
         };
     fetchFunc();
     }, [searchQuery])
+
+## Lecture 212
+
+Replacing our componentDidMount's with hooks.
+
+Render Cycles with Hooks: since we converted our ShopPage to hooks, it will rerender when any of the props we passed in it change, or if it's parent component (app.js) rerenders. e.g. in this situation, if currentUser updates in app.js it will rerender our ShopPage.
+
+Now, if we don't pass in an array to our new ShopPage useEffect hook, it can cause it to rerender too much. e.g. if we go to the shop page, and then we refresh, it fetches our collection, then it checks whether we are signed in to the session already, then that will change currentUser in app.js which will in turn rerender our shopPage and fetch our collection again. pass in fetchCollectionsStart into the array so it doesn't do that.
+
+## Lecture 213
+
+We can return a function() in useEffect, called a "Clean-Up Function". useEffect calls this function when a component is unmounted.
+
+before, with our collection call to the firestore, we were using a subscription model to listen for any changes. we set initialized it to null, then on mount we would fetch the collection snapshot and set it to a variable which would return a function to unsubscribe which we would call in componentWillUnmount():
+
+    unsubscribeFromCollections = firestore.collection('collections').onSnapshot(snapshot => {...})
+
+We can declare this same function above, inside of our useEffect, to call our snapshot. Then we can unsubscribe by calling that function in the return of our useEffect, which will run when the component unmounts, just like we did before. Then, on unmount, useEffect will run the function we returned inside of it. Don't forget we need to pass in an empty array so that this effect only runs on mount, and we don't get any errors from linting.
+
+    const CollectionPage = ({ collection }) => {
+        useEffect(() +> {
+            console.log('subscribing')
+            const unsubscribeFromCollections = firestore
+                .collection('collections')
+                .onSnapshot(snapshot => console.log(snapshot));
+
+            return () => { // <== "clean up function"
+                console.log('unsubscribing');
+                unsubscribeFromCollections();
+            };
+        }, [])
+    }
+
+note: async functions can't be returned...
+
+In this example above when we go to a collection page, we console.log'd subscribing to the snapshot and return the snapshot object, which we set to the variable unsubscribeFrom.... When we call unsubscribe... on componentWillUnmount lifecycle, it will tell firebase that we have logged out. When we go back to the homepage, we will see a console.log of us unsubscribing.

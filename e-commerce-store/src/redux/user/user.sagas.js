@@ -17,7 +17,6 @@ import {
   googleProvider,
   createUserProfileDocument,
   getCurrentUser,
-  createUserWithEmailAndPassword,
 } from '../../firebase/firebase.utils';
 
 // transfer code inside of our sign-in component to trigger googleSignIn, which triggers a Firebase.utils and put it here.

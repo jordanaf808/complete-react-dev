@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux'; // connects your component to redux
-import { auth } from '../../firebase/firebase.utils';
+
 import { createStructuredSelector } from 'reselect';
 
 import CartIcon from '../cart-icon/cart-icon.component';
