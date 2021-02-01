@@ -319,3 +319,99 @@ We can declare this same function above, inside of our useEffect, to call our sn
 note: async functions can't be returned...
 
 In this example above when we go to a collection page, we console.log'd subscribing to the snapshot and return the snapshot object, which we set to the variable unsubscribeFrom.... When we call unsubscribe... on componentWillUnmount lifecycle, it will tell firebase that we have logged out. When we go back to the homepage, we will see a console.log of us unsubscribing.
+
+## Lecture 215
+
+### Creating your own _Custom Hooks_
+
+useFetch > use-fetch.effect.js
+
+    import { useState, useEffect } from 'react';
+
+    const useFetch = (url) => {
+        const [data, setData] = useState(null);
+
+        useEffect(() => {
+            const fetchData = async () => {
+                const res = await fetch(url);
+                const data = await res.json();
+                setData(data[0]);
+            };
+            fetchData();
+        // different render methods depending on array/!array ...
+        }, ); // update every time the parent component renders or useFetch is called.
+        }, [url]); // only update when 'url' updates.
+        }, []); // only update on mount/initialization
+
+        return data; // <--- DONT FORGET!!!
+    };
+
+    export default useFetch;
+
+app.js
+
+    import useFetch form '../../effects/use-fetch.effect'
+
+    const User = ({ userID }) => {
+        const user = useFetch(`https://jsondata.us/users?id=${userId})
+    }
+
+### useReducer
+
+state management _localized_ inside of a component. Does not affect the global Redux state!?
+
+    import { useEffect, useReducer } from 'react';
+
+    const INITIAL_STATE = {
+        user: null,
+        searchQuery: 'John'
+    }
+    // reducer switch statement
+    const reducer = (state, action) => {
+        switch(action.type) {
+            case 'SET_USER':
+                return {...state, user: action.payload}
+            case 'SET_SEARCH_QUERY':
+                return {...state, searchQuery: action.payload}
+            default:
+                return state;
+        }
+    };
+
+    // User action:
+    const setUser = user => ({
+        type: 'SET_USER',
+        payload: user
+    });
+
+    // Search action:
+    const setSearchQuery = queryString => ({
+        type: 'SET_SEARCH_QUERY',
+        payload: queryString
+    });
+
+    // Reducer Hook:
+    const useReducer = () => {
+        // destruct. off the currect state and dispatch method from the reducer hook and pass in our reducer and initial state.
+        const [state, dispatch] = useReducer(reducer, INITIAL_STATE)
+        // destruct. off state from above?
+        const { user, searchQuery } = state;
+
+    // Effect:
+        useEffect(() => {
+
+            const fetchData = async () => {
+                const res = await fetch(url);
+                const data = await res.json();
+                dispatch(setUser(data[0]));
+
+Here, we pass in the user data to our action function, now we just need to dispatch it by wrapping it in the dispatch function. cont...
+
+            };
+            fetchData();
+        }, [url]); // only update when 'url' updates.
+
+        return data; // <--- DONT FORGET!!!
+    };
+
+    export default useFetch;
