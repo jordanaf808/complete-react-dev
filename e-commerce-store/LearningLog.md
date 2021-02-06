@@ -443,3 +443,8 @@ Build /payment route.
 Write client-side logic to initiate a payment request to stripe with axios. Axios helps us make complex api requests.
 Inside of our stripe-button component the checkout button makes a post request with axios passing in the price and token (passed in by the stripe-checkout component imported from stripe that takes our 'publishable key' and returns the token).
 Express receives that request and passes the respective objects into the body object, that we will pass in to stripe.charges
+
+## Lecture 230
+
+Deploy to Heroku. Make sure remote is set to Heroku. Check you heroku app names `heroku apps`. Check git remotes `git remote`, if not heroku `heroku git:remote -a jaf-ltd`.
+Change _BuildPack_ so that our heroku app now points to our express server backend, which will handle all the routing; Every route except our '/payment' route will be sent to our React app, which will handle any subsequent routing within our client side app. Any request made by our client side app to '/payment' will be handled by express and routed to stripe with the appropriate data and headers.
